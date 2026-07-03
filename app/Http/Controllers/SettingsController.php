@@ -53,9 +53,9 @@ class SettingsController extends Controller
             }
         }
 
-        // Don't overwrite sensitive fields with empty string
+        // Don't overwrite sensitive fields with empty or null value
         foreach (['google_client_secret', 'caldav_pass'] as $field) {
-            if (array_key_exists($field, $data) && $data[$field] === '') {
+            if (array_key_exists($field, $data) && empty($data[$field])) {
                 unset($data[$field]);
             }
         }
@@ -66,6 +66,25 @@ class SettingsController extends Controller
         );
 
         return response()->json(['ok' => true]);
+    }
+
+    public function caldavTest(Request $request): JsonResponse
+    {
+        $s = UserSetting::where('user_id', $request->user()->id)->first();
+        if (!$s?->caldav_url) return response()->json(['error' => 'No CalDAV configured']);
+
+        $tz    = new \DateTimeZone('Europe/Berlin');
+        $start = new \DateTime('today', $tz);
+        $end   = (clone $start)->modify('+30 days');
+        $busy  = (new CalDavService())->getBusy($s, $start, $end, $tz);
+
+        return response()->json([
+            'count' => count($busy),
+            'busy'  => array_map(fn($b) => [
+                'start' => $b[0]->format('Y-m-d H:i:s e'),
+                'end'   => $b[1]->format('Y-m-d H:i:s e'),
+            ], $busy),
+        ]);
     }
 
     public function caldavDisconnect(Request $request): JsonResponse
