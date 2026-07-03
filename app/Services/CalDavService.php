@@ -77,7 +77,15 @@ XML;
         $dtS  = (new DateTime($d['start']))->setTimezone(new DateTimeZone('UTC'))->format('Ymd\THis\Z');
         $dtE  = (new DateTime($d['end']))->setTimezone(new DateTimeZone('UTC'))->format('Ymd\THis\Z');
         $summary = $this->escapeIcs($d['name'] ?? 'Booking');
-        $desc    = $this->escapeIcs($d['note'] ?? '');
+
+        $descParts = [];
+        if (!empty($d['email']))     $descParts[] = 'Email: ' . $d['email'];
+        if (!empty($d['type']))      $descParts[] = 'Type: '  . $d['type'];
+        if (!empty($d['note']))      $descParts[] = 'Phone: ' . $d['note'];
+        if (!empty($d['meet_link'])) $descParts[] = 'Meet: '  . $d['meet_link'];
+        $desc = $this->escapeIcs(implode('\n', $descParts));
+
+        $url = !empty($d['meet_link']) ? "URL:{$d['meet_link']}\r\n" : '';
 
         return "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Slotted//EN\r\n"
             . "BEGIN:VEVENT\r\n"
@@ -87,6 +95,7 @@ XML;
             . "DTEND:{$dtE}\r\n"
             . "SUMMARY:{$summary}\r\n"
             . ($desc ? "DESCRIPTION:{$desc}\r\n" : '')
+            . $url
             . "END:VEVENT\r\nEND:VCALENDAR\r\n";
     }
 

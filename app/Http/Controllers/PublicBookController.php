@@ -62,17 +62,7 @@ class PublicBookController extends Controller
             return response()->json(['message' => 'This slot is no longer available. Please pick another time.'], 409);
         }
 
-        $caldavUid = null;
-        if ($s->caldav_url && $s->caldav_user && $s->caldav_pass) {
-            $caldavUid = (new CalDavService())->createEvent($s, [
-                'start' => $start->format('Y-m-d H:i:s'),
-                'end'   => $end->format('Y-m-d H:i:s'),
-                'name'  => $data['name'],
-                'note'  => $data['note'] ?? '',
-            ]);
-        }
-
-        $meetLink   = null;
+        $meetLink      = null;
         $googleEventId = null;
         $isGoogleMeet  = !empty($data['is_google_meet']);
 
@@ -88,6 +78,19 @@ class PublicBookController extends Controller
                 $meetLink      = $gResult['meet_link'];
                 $googleEventId = $gResult['event_id'];
             }
+        }
+
+        $caldavUid = null;
+        if ($s->caldav_url && $s->caldav_user && $s->caldav_pass) {
+            $caldavUid = (new CalDavService())->createEvent($s, [
+                'start'     => $start->format('Y-m-d H:i:s'),
+                'end'       => $end->format('Y-m-d H:i:s'),
+                'name'      => $data['name'],
+                'email'     => $data['email'],
+                'note'      => $data['note'] ?? '',
+                'meet_link' => $meetLink,
+                'type'      => $isGoogleMeet ? 'Google Meet' : 'Phone',
+            ]);
         }
 
         $booking = Booking::create([
