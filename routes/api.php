@@ -38,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('settings', [SettingsController::class, 'show']);
     Route::put('settings', [SettingsController::class, 'update']);
     Route::post('settings/caldav-discover', [SettingsController::class, 'caldavDiscover']);
+    Route::delete('caldav/disconnect', [SettingsController::class, 'caldavDisconnect']);
 
     Route::get('bookings', [BookingController::class, 'index']);
     Route::post('bookings/{booking}/cancel', [BookingController::class, 'cancel']);

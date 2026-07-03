@@ -51,9 +51,11 @@ class SettingsController extends Controller
             }
         }
 
-        // Don't overwrite existing secret with empty string
-        if (array_key_exists('google_client_secret', $data) && $data['google_client_secret'] === '') {
-            unset($data['google_client_secret']);
+        // Don't overwrite sensitive fields with empty string
+        foreach (['google_client_secret', 'caldav_pass'] as $field) {
+            if (array_key_exists($field, $data) && $data[$field] === '') {
+                unset($data[$field]);
+            }
         }
 
         UserSetting::updateOrCreate(
@@ -61,6 +63,16 @@ class SettingsController extends Controller
             $data
         );
 
+        return response()->json(['ok' => true]);
+    }
+
+    public function caldavDisconnect(Request $request): JsonResponse
+    {
+        UserSetting::where('user_id', $request->user()->id)->update([
+            'caldav_user' => null,
+            'caldav_pass' => null,
+            'caldav_url'  => null,
+        ]);
         return response()->json(['ok' => true]);
     }
 
