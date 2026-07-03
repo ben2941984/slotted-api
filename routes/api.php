@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\GoogleOAuthController;
 use App\Http\Controllers\PublicBookController;
 use App\Http\Controllers\SettingsController;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,10 @@ Route::prefix('auth')->group(function () {
         Route::get('me', [AuthController::class, 'me']);
     });
 });
+
+// Google OAuth (both public — token passed in query string)
+Route::get('auth/google/redirect', [GoogleOAuthController::class, 'redirect']);
+Route::get('auth/google/callback', [GoogleOAuthController::class, 'callback']);
 
 // Authenticated routes
 Route::middleware('auth:sanctum')->group(function () {

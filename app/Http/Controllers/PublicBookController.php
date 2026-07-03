@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\UserSetting;
 use App\Services\CalDavService;
+use App\Services\GoogleService;
 use App\Services\MailService;
 use App\Services\SlotService;
 use Illuminate\Http\JsonResponse;
@@ -71,6 +72,24 @@ class PublicBookController extends Controller
             ]);
         }
 
+        $meetLink   = null;
+        $googleEventId = null;
+        $isGoogleMeet  = !empty($data['is_google_meet']);
+
+        if ($isGoogleMeet && $s->googleConnected()) {
+            $gResult = (new GoogleService())->createEvent($s, [
+                'start'    => $start->format('Y-m-d H:i:s'),
+                'end'      => $end->format('Y-m-d H:i:s'),
+                'name'     => $data['name'],
+                'note'     => $data['note'] ?? '',
+                'timezone' => $tz,
+            ]);
+            if ($gResult['success']) {
+                $meetLink      = $gResult['meet_link'];
+                $googleEventId = $gResult['event_id'];
+            }
+        }
+
         $booking = Booking::create([
             'user_id'         => $s->user_id,
             'start_dt'        => $start->format('Y-m-d H:i:s'),
@@ -81,7 +100,9 @@ class PublicBookController extends Controller
             'ip'              => $request->ip(),
             'timezone'        => $tz,
             'status'          => 'confirmed',
-            'is_google_meet'  => !empty($data['is_google_meet']),
+            'is_google_meet'  => $isGoogleMeet,
+            'google_meet_link' => $meetLink,
+            'google_event_id'  => $googleEventId,
             'caldav_uid'      => $caldavUid,
             'cancel_token'    => bin2hex(random_bytes(24)),
         ]);

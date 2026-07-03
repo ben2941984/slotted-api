@@ -16,7 +16,7 @@ class UserSetting extends Model
         'google_access_token', 'google_refresh_token', 'google_token_expires',
     ];
 
-    protected $hidden = ['caldav_pass', 'google_client_secret', 'google_access_token', 'google_refresh_token'];
+    protected $hidden = ['caldav_pass', 'google_access_token', 'google_refresh_token'];
 
     protected $casts = [
         'send_customer_email' => 'boolean',
