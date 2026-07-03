@@ -13,7 +13,9 @@ class SettingsController extends Controller
     {
         $s = UserSetting::firstOrNew(['user_id' => $request->user()->id]);
         $data = $s->toArray();
-        $data['google_connected'] = $s->googleConnected();
+        $data['google_connected']  = $s->googleConnected();
+        $data['has_caldav_pass']   = !empty($s->caldav_pass);
+        $data['has_google_secret'] = !empty($s->google_client_secret);
         unset($data['google_client_secret']);
         return response()->json($data);
     }
