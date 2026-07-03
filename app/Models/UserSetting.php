@@ -14,6 +14,7 @@ class UserSetting extends Model
         'caldav_user', 'caldav_pass', 'caldav_url',
         'google_client_id', 'google_client_secret',
         'google_access_token', 'google_refresh_token', 'google_token_expires',
+        'embed_theme', 'embed_layout',
     ];
 
     protected $hidden = ['caldav_pass', 'google_access_token', 'google_refresh_token'];

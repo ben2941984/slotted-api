@@ -33,6 +33,8 @@ class SettingsController extends Controller
             'day_start'            => 'nullable|string|max:5',
             'day_end'              => 'nullable|string|max:5',
             'blackout_dates'       => 'nullable|string|max:1000',
+            'embed_theme'          => 'nullable|in:light,dark',
+            'embed_layout'         => 'nullable|in:default,mini',
             'send_customer_email'  => 'nullable|boolean',
             'caldav_user'          => 'nullable|string|max:200',
             'caldav_pass'          => 'nullable|string|max:200',
