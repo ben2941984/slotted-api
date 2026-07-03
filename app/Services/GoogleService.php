@@ -34,7 +34,10 @@ class GoogleService
             'grant_type'    => 'authorization_code',
         ]);
 
-        if (empty($data['access_token']) || empty($data['refresh_token'])) return false;
+        if (empty($data['access_token']) || empty($data['refresh_token'])) {
+            \Log::error('Google exchange failed', ['response' => $data, 'redirect_uri' => $redirectUri]);
+            return false;
+        }
 
         $this->saveTokens($s, $data);
         return true;

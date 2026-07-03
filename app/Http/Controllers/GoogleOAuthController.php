@@ -38,6 +38,18 @@ class GoogleOAuthController extends Controller
         return redirect($url);
     }
 
+    // DELETE /api/auth/google/disconnect  (auth:sanctum)
+    public function disconnect(Request $request)
+    {
+        UserSetting::where('user_id', $request->user()->id)->update([
+            'google_access_token'  => null,
+            'google_refresh_token' => null,
+            'google_token_expires' => null,
+        ]);
+
+        return response()->json(['ok' => true]);
+    }
+
     // GET /api/auth/google/callback  (public — Google redirects here)
     public function callback(Request $request)
     {
@@ -59,6 +71,13 @@ class GoogleOAuthController extends Controller
         }
 
         $s = UserSetting::where('user_id', $user->id)->firstOrFail();
+
+        \Log::info('Google callback', [
+            'redirect_uri' => $this->redirectUri,
+            'client_id'    => $s->google_client_id,
+            'has_secret'   => !empty($s->google_client_secret),
+            'code_len'     => strlen($code),
+        ]);
 
         $ok = (new GoogleService())->exchangeCode($s, $code, $this->redirectUri);
 

@@ -31,6 +31,7 @@ Route::prefix('auth')->group(function () {
 // Google OAuth (both public — token passed in query string)
 Route::get('auth/google/redirect', [GoogleOAuthController::class, 'redirect']);
 Route::get('auth/google/callback', [GoogleOAuthController::class, 'callback']);
+Route::middleware('auth:sanctum')->delete('auth/google/disconnect', [GoogleOAuthController::class, 'disconnect']);
 
 // Authenticated routes
 Route::middleware('auth:sanctum')->group(function () {

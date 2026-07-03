@@ -49,6 +49,11 @@ class SettingsController extends Controller
             }
         }
 
+        // Don't overwrite existing secret with empty string
+        if (array_key_exists('google_client_secret', $data) && $data['google_client_secret'] === '') {
+            unset($data['google_client_secret']);
+        }
+
         UserSetting::updateOrCreate(
             ['user_id' => $request->user()->id],
             $data

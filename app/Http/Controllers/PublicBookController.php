@@ -111,7 +111,11 @@ class PublicBookController extends Controller
             (new MailService())->sendConfirmation($booking, $s);
         }
 
-        return response()->json(['ok' => true, 'id' => $booking->id], 201);
+        return response()->json([
+            'ok'            => true,
+            'id'            => $booking->id,
+            'google_meet_link' => $booking->google_meet_link,
+        ], 201);
     }
 
     private function validTimezone(string $tz): bool
