@@ -14,14 +14,15 @@ class CalDavService
 
         // PROPFIND principal
         $body = '<?xml version="1.0" encoding="UTF-8"?><D:propfind xmlns:D="DAV:"><D:prop><D:current-user-principal/></D:prop></D:propfind>';
-        $res  = $this->request('PROPFIND', $base . '/', $user, $pass, $body, ['Depth: 0']);
+        $xmlHeaders = ['Content-Type: application/xml; charset=utf-8', 'Depth: 0'];
+        $res  = $this->request('PROPFIND', $base . '/', $user, $pass, $body, $xmlHeaders);
         if (!$res) return null;
 
         if (preg_match('|<D:href>(.*?)</D:href>|', $res, $m)) {
             $principal = rtrim($m[1], '/');
             // find calendar-home-set
             $body2 = '<?xml version="1.0" encoding="UTF-8"?><D:propfind xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:caldav"><D:prop><C:calendar-home-set/></D:prop></D:propfind>';
-            $res2  = $this->request('PROPFIND', $base . $principal, $user, $pass, $body2, ['Depth: 0']);
+            $res2  = $this->request('PROPFIND', $base . $principal, $user, $pass, $body2, $xmlHeaders);
             if ($res2 && preg_match('|calendar-home-set.*?<D:href>(.*?)</D:href>|s', $res2, $m2)) {
                 return $base . $m2[1];
             }
@@ -49,7 +50,7 @@ class CalDavService
 </c:calendar-query>
 XML;
 
-        $res = $this->request('REPORT', $s->caldav_url, $s->caldav_user, $s->caldav_pass, $body, ['Depth: 1', 'Content-Type: application/xml; charset=utf-8']);
+        $res = $this->request('REPORT', $s->caldav_url, $s->caldav_user, $s->caldav_pass, $body, ['Content-Type: application/xml; charset=utf-8', 'Depth: 1']);
         if (!$res) return [];
 
         return $this->parseBusyTimes($res, $tz);
@@ -131,7 +132,7 @@ XML;
             CURLOPT_CUSTOMREQUEST  => $method,
             CURLOPT_USERPWD        => "{$user}:{$pass}",
             CURLOPT_POSTFIELDS     => $body,
-            CURLOPT_HTTPHEADER     => array_merge(['Content-Type: application/xml; charset=utf-8'], $headers),
+            CURLOPT_HTTPHEADER     => $headers,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT        => 10,
             CURLOPT_SSL_VERIFYPEER => true,
